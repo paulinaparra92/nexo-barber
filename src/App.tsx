@@ -1,8 +1,7 @@
-import './App.css'
-import PublicBooking from './pages/PublicBooking/PublicBooking'
+import BarberAgenda from './pages/BarberAgenda/BarberAgenda'
 
 function App() {
-  return <PublicBooking />
+  return <BarberAgenda />
 }
 
 export default App

@@ -1,0 +1,38 @@
+.appointment-card {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    background: white;
+    border-radius: 16px;
+
+    padding: 18px 20px;
+    margin-bottom: 16px;
+
+    box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+}
+
+.appointment-time {
+    min-width: 70px;
+
+    font-size: 1.2rem;
+    font-weight: 700;
+
+    color: #111827;
+}
+
+.appointment-content h3 {
+    margin: 0;
+
+    font-size: 1.1rem;
+}
+
+.appointment-content p {
+    margin: 6px 0;
+
+    color: #6B7280;
+}
+
+.appointment-content strong {
+    color: #111827;
+}

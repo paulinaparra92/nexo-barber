@@ -1,80 +1,72 @@
 
-import { useState } from 'react'
-import OptionCard from '../../components/ui/OptionCard'
-import TimeSlot from '../../components/ui/TimeSlot'
-import DateOption from '../../components/ui/DateOption'
-import type { Appointment } from '../../types/appointment'
+
+import { useEffect, useState } from 'react'
+import { getAppointmentsByDate } from '../../services/barberAgendaService'
+import AppointmentCard from '../../components/ui/AppointmentCard/AppointmentCard'
+import AgendaSummary from '../../components/ui/AgendaSummary/AgendaSummary'
+
+function BarberAgenda() {
+
+  const [appointments, setAppointments] = useState<any[]>([])
 
 
-function StaffBooking() {
-  const [selectedService, setSelectedService] = useState('')
-  const [selectedBarber, setSelectedBarber] = useState('')
-  const [selectedTime, setSelectedTime] = useState('')
-  const [selectedDate, setSelectedDate] = useState('')
-  const clients = ['Juan Pérez','Juan García','Julio Ramos','Miguel Soto','Carlos Ruiz','Luis García',]
-  const [clientSearch, setClientSearch] = useState('')
-  const [showClientResults, setShowClientResults] = useState(false)
-  const [lastAppointment, setLastAppointment] = useState<Appointment | null>(null)
-  const requiresApproval = false
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-  event.preventDefault()
+  useEffect(() => {
+  async function loadAgenda() {
+    //const today = new Date().toISOString().split('T')[0]
+    const today = '2026-08-07'
 
-  if (
-    !clientSearch ||
-    !selectedService ||
-    !selectedBarber ||
-    !selectedDate ||
-    !selectedTime
-  ) {
-    alert('Completa todos los datos de la cita')
-    return
+    const data = await getAppointmentsByDate(
+      'Iván',
+      today
+    )
+
+    setAppointments(data)
   }
 
-  const appointment: Appointment = {
-    client: clientSearch,
-    service: selectedService,
-    barber: selectedBarber,
-    date: selectedDate,
-    time: selectedTime,
-    status: requiresApproval ? 'pending' : 'confirmed',
-  }
+  loadAgenda()
+}, [])
 
-  setLastAppointment(appointment)
-  setClientSearch('')
-  setSelectedService('')
-  setSelectedBarber('')
-  setSelectedDate('')
-  setSelectedTime('')
-  setShowClientResults(false)
-
-}
-
-const serviceLabels: Record<string, string> = {
-  corte: 'Corte',
-  barba: 'Barba',
-  'corte-barba': 'Corte + Barba',
-}
-
-const barberLabels: Record<string, string> = {
-  any: 'Primera disponibilidad',
-  Ivan: 'Iván',
-  Barber2: 'Barber 2',
-}
-
-const dateLabels: Record<string, string> = {
-  today: 'Hoy',
-  tomorrow: 'Mañana',
-  other: 'Otra fecha',
-}
-
+//console.log('Agenda de hoy:', appointments)
+console.log('Primera cita:', appointments[0])
   return (
 
     <main className="page">
-      <h1>Nueva cita</h1>
-      
+      {/* <h1>Nueva cita</h1> */}
+      <h1>Agenda de Iván</h1>
 
-      <form onSubmit={handleSubmit}>
+
+<AgendaSummary
+  appointments={appointments.length}
+  estimatedIncome={appointments.reduce(
+    (total, appointment) => total + Number(appointment.price ?? 0),
+    0
+  )}
+/>
+
+
+
+
+
+<div className="agenda-list">
+  {appointments.map((appointment) => (
+    <AppointmentCard
+      key={appointment.id}
+      time={appointment.appointment_time.substring(0, 5)}
+      client={appointment.client_name}
+      service={appointment.service}
+      price={Number(appointment.price ?? 0)}
+    />
+  ))}
+</div>
+
+
+
+
+
+
+
+ {/*      <form onSubmit={handleSubmit}>
 
         <label>Cliente</label>
         <input
@@ -231,25 +223,14 @@ const dateLabels: Record<string, string> = {
         <button className="save-button" type="submit">
             Guardar cita
         </button>
-      </form>
-      {lastAppointment && (
-      <section className="appointment-summary">
-        <h2>✅ Cita creada correctamente</h2>
+      </form> */}
 
-        <p><strong>Cliente:</strong> {lastAppointment.client}</p>
-        <p><strong>Servicio:</strong>{' '}{serviceLabels[lastAppointment.service]}</p>
-        <p><strong>Barbero:</strong>{' '}{barberLabels[lastAppointment.barber]}</p>
-        <p><strong>Fecha:</strong>{' '} {dateLabels[lastAppointment.date]}</p>
-        <p><strong>Hora:</strong> {lastAppointment.time}</p>
-        <p><strong>Estado:</strong>{' '}{lastAppointment.status === 'confirmed'
-            ? 'Confirmada'
-            : 'Pendiente'}
-        </p>
-      </section>
-    )}
+
+      
 
     </main>
   )
+
 }
 
-export default StaffBooking
+export default BarberAgenda
