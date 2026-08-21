@@ -17,7 +17,10 @@ export async function getBookedTimes(
   }
 
 
-  return data.map((item) => item.appointment_time.substring(0, 5))
+  return data.map(
+  (item: { appointment_time: string }) =>
+    item.appointment_time.substring(0, 5)
+)
 }
 
 export async function getBookedAppointments(
