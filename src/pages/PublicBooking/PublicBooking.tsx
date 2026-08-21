@@ -231,6 +231,9 @@ function PublicBooking() {
   useEffect(() => {
     async function loadBarbers() {
       const data = await getActiveBarbers()
+
+console.log('Barberos públicos:', data)
+
       setBarbers(data)
     }
 

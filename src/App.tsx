@@ -67,9 +67,17 @@ function App() {
     return <div>Cargando...</div>
   }
 
-  if (window.location.pathname === '/reservar') {
-  return <PublicBooking />
-}
+  const hostname = window.location.hostname
+
+  const isInTheCutSubdomain =
+    hostname === 'inthecut.nexobarber.app'
+
+  if (
+    window.location.pathname === '/reservar' ||
+    isInTheCutSubdomain
+  ) {
+    return <PublicBooking />
+  }
 
   if (!profile) {
     return <Login onLoginSuccess={handleLoginSuccess} />
