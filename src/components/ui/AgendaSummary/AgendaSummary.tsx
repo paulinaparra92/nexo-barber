@@ -1,0 +1,35 @@
+import './AgendaSummary.css'
+
+type AgendaSummaryProps = {
+  barberName: string
+  appointments: number
+  estimatedIncome: number
+  completedIncome: number
+}
+
+function AgendaSummary({
+  barberName,
+  appointments,
+  estimatedIncome,
+  completedIncome,
+}: AgendaSummaryProps) {
+  return (
+    <section className="agenda-summary">
+      <h1>Agenda de {barberName}</h1>
+
+      <div className="agenda-summary-info">
+        <span>{appointments} citas hoy</span>
+
+        <span className="agenda-summary-dot">·</span>
+
+        <strong>${estimatedIncome} estimados</strong>
+
+        <span className="agenda-summary-dot">·</span>
+
+        <span>${completedIncome} realizados</span>
+      </div>
+    </section>
+  )
+}
+
+export default AgendaSummary

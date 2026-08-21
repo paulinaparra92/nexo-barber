@@ -1,38 +1,113 @@
 .appointment-card {
-    display: flex;
-    align-items: center;
-    gap: 20px;
+  display: grid;
+  grid-template-columns: 64px 1fr auto;
+  align-items: center;
+  gap: 14px;
 
-    background: white;
-    border-radius: 16px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
 
-    padding: 18px 20px;
-    margin-bottom: 16px;
-
-    box-shadow: 0 6px 20px rgba(0, 0, 0, .08);
+  padding: 16px;
+  margin-bottom: 12px;
 }
 
 .appointment-time {
-    min-width: 70px;
+  font-size: 1.05rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+  white-space: nowrap;
+}
 
-    font-size: 1.2rem;
-    font-weight: 700;
-
-    color: #111827;
+.appointment-content {
+  min-width: 0;
 }
 
 .appointment-content h3 {
-    margin: 0;
+  margin: 0 0 4px;
 
-    font-size: 1.1rem;
+  font-size: 1rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text);
+
+  text-transform: capitalize;
 }
 
 .appointment-content p {
-    margin: 6px 0;
+  margin: 0;
 
-    color: #6B7280;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
 }
 
-.appointment-content strong {
-    color: #111827;
+.appointment-price {
+  color: var(--color-text);
+  font-size: 0.95rem;
+  font-weight: var(--font-weight-bold);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .appointment-card {
+    grid-template-columns: 48px 1fr auto;
+    gap: 12px;
+  }
+
+  .appointment-time {
+    font-size: 1rem;
+  }
+}
+.appointment-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 9px;
+  border-radius: 999px;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.appointment-status.confirmed {
+  background: #eef2ff;
+  color: #3730a3;
+}
+
+.appointment-status.completed {
+  background: #ecfdf5;
+  color: #047857;
+}
+
+.appointment-status.cancelled {
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
+@media (max-width: 600px) {
+  .appointment-card {
+    grid-template-columns: 72px minmax(0, 1fr) auto;
+    gap: 10px;
+
+    padding: 16px 14px;
+  }
+
+  .appointment-time {
+    font-size: 0.95rem;
+  }
+
+  .appointment-content {
+    min-width: 0;
+  }
+
+  .appointment-status {
+    padding: 5px 8px;
+
+    font-size: 0.7rem;
+  }
+
+  .appointment-price {
+    font-size: 0.9rem;
+  }
 }

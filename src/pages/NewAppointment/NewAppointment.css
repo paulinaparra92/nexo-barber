@@ -1,0 +1,142 @@
+.new-appointment-page {
+  width: 100%;
+}
+
+.new-appointment-card {
+  width: 100%;
+  max-width: 680px;
+
+  margin: 0 auto;
+
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+
+  padding: var(--space-4);
+}
+
+.new-appointment-header {
+  margin-bottom: var(--space-4);
+}
+
+.new-appointment-header h1 {
+  margin: 0;
+
+  color: var(--color-text);
+
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.new-appointment-header p {
+  margin-top: var(--space-2);
+
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-sm);
+}
+.new-appointment-card label {
+  display: block;
+  margin-bottom: 6px;
+
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.new-appointment-card input,
+.new-appointment-card select {
+  width: 100%;
+  min-height: 46px;
+
+  padding: 10px 12px;
+  margin-bottom: 18px;
+
+  border: 1px solid #d8dbe2;
+  border-radius: 10px;
+
+  background: #ffffff;
+  color: var(--color-text);
+
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+
+.new-appointment-card input:focus,
+.new-appointment-card select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.new-appointment-card > div {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .new-appointment-card {
+    padding: 20px 16px;
+  }
+}
+.back-button {
+  display: inline-flex;
+  align-items: center;
+
+  margin-bottom: 16px;
+  padding: 8px 12px;
+
+  border: none;
+  background: transparent;
+
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.back-button:hover {
+  color: var(--color-text);
+}
+
+.save-appointment-button {
+  width: 100%;
+  min-height: 48px;
+
+  margin-top: 8px;
+  padding: 12px 18px;
+
+  border: none;
+  border-radius: 12px;
+
+  background: var(--color-primary);
+  color: white;
+
+  font-size: 1rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.save-appointment-button:hover {
+  opacity: 0.9;
+}
+
+.save-appointment-button:active {
+  transform: scale(0.99);
+}
+.date-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.date-time-row > div {
+  width: 100%;
+}
+
+@media (max-width: 600px) {
+  .date-time-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}

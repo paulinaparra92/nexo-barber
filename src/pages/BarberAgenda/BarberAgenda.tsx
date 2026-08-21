@@ -1,234 +1,367 @@
 
-
-import { useEffect, useState } from 'react'
+import PageContainer from '../../components/layout/PageContainer/PageContainer'
+import { useEffect, useRef, useState } from 'react'
 import { getAppointmentsByDate } from '../../services/barberAgendaService'
 import AppointmentCard from '../../components/ui/AppointmentCard/AppointmentCard'
 import AgendaSummary from '../../components/ui/AgendaSummary/AgendaSummary'
+import { getActiveBarbers } from '../../services/barberService'
+import './BarberAgenda.css'
+import { updateAppointmentStatus } from '../../services/appointmentService'
 
-function BarberAgenda() {
+type BarberAgendaProps = {
+  currentBarberName: string
+  role: 'partner' | 'barber'
+  onNewAppointment: (date: string) => void
+  onEditAppointment: (appointmentId: string) => void
+}
+
+function BarberAgenda({
+  currentBarberName,
+  role,
+  onNewAppointment,
+  onEditAppointment,
+}: BarberAgendaProps) {
 
   const [appointments, setAppointments] = useState<any[]>([])
-
-
+  const [barbers, setBarbers] = useState<any[]>([])
+  const [selectedBarber, setSelectedBarber] = useState(currentBarberName)
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null)
+  const selectedAppointment = appointments.find(
+    (appointment) => appointment.id === selectedAppointmentId
+  )
+  const [selectedDate, setSelectedDate] = useState(
+    new Date().toISOString().split('T')[0]
+  )
+  const dateInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-  async function loadAgenda() {
-    //const today = new Date().toISOString().split('T')[0]
-    const today = '2026-08-07'
+    async function loadAgenda() {
+      const barberData = await getActiveBarbers()
+      setBarbers(barberData)
 
-    const data = await getAppointmentsByDate(
-      'Iván',
-      today
+
+
+      if (!selectedBarber) {
+        setAppointments([])
+        return
+      }
+
+      const data = await getAppointmentsByDate(
+        selectedBarber,
+        selectedDate
+      )
+
+      setAppointments(data)
+    }
+
+    loadAgenda()
+  }, [selectedBarber, selectedDate])
+
+
+  async function handleCompleteAppointment() {
+    if (!selectedAppointmentId) return
+
+    const updatedAppointment = await updateAppointmentStatus(
+      selectedAppointmentId,
+      'completed'
     )
 
-    setAppointments(data)
+    if (!updatedAppointment) return
+
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === selectedAppointmentId
+          ? updatedAppointment
+          : appointment
+      )
+    )
+
+    setSelectedAppointmentId(null)
   }
 
-  loadAgenda()
-}, [])
+  async function handleCancelAppointment() {
+    if (!selectedAppointmentId) return
 
-//console.log('Agenda de hoy:', appointments)
-console.log('Primera cita:', appointments[0])
-  return (
+    const updatedAppointment = await updateAppointmentStatus(
+      selectedAppointmentId,
+      'cancelled'
+    )
 
-    <main className="page">
-      {/* <h1>Nueva cita</h1> */}
-      <h1>Agenda de Iván</h1>
+    if (!updatedAppointment) return
 
+    setAppointments((currentAppointments) =>
+      currentAppointments.map((appointment) =>
+        appointment.id === selectedAppointmentId
+          ? updatedAppointment
+          : appointment
+      )
+    )
 
-<AgendaSummary
-  appointments={appointments.length}
-  estimatedIncome={appointments.reduce(
-    (total, appointment) => total + Number(appointment.price ?? 0),
+    setSelectedAppointmentId(null)
+  }
+
+  function openWhatsapp(whatsapp: string) {
+    const cleanNumber = whatsapp.replace(/\D/g, '')
+
+    const fullNumber =
+      cleanNumber.length === 10
+        ? `52${cleanNumber}`
+        : cleanNumber
+
+    window.open(
+      `https://wa.me/${fullNumber}`,
+      '_blank'
+    )
+  }
+
+  const activeAppointments = appointments.filter(
+    (appointment) => appointment.status !== 'cancelled'
+  )
+
+  const estimatedIncome = activeAppointments.reduce(
+    (total, appointment) =>
+      total + Number(appointment.price ?? 0),
     0
-  )}
-/>
+  )
+
+  const completedAppointments = appointments.filter(
+    (appointment) => appointment.status === 'completed'
+  )
+
+  const completedIncome = completedAppointments.reduce(
+    (total, appointment) =>
+      total + Number(appointment.price ?? 0),
+    0
+  )
+
+  function formatTime(time: string) {
+    const [hours, minutes] = time.split(':').map(Number)
+
+    const period = hours >= 12 ? 'PM' : 'AM'
+    const formattedHour = hours % 12 || 12
+
+    return `${formattedHour}:${minutes
+      .toString()
+      .padStart(2, '0')} ${period}`
+  }
+
+  function changeDate(days: number) {
+    const currentDate = new Date(`${selectedDate}T12:00:00`)
+
+    currentDate.setDate(
+      currentDate.getDate() + days
+    )
+
+    const newDate = currentDate
+      .toISOString()
+      .split('T')[0]
+
+    setSelectedDate(newDate)
+  }
+
+  function formatSelectedDate(date: string) {
+    return new Intl.DateTimeFormat('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    }).format(new Date(`${date}T12:00:00`))
+  }
+  return (
+    <PageContainer>
+      <main className="page">
 
 
 
-
-
-<div className="agenda-list">
-  {appointments.map((appointment) => (
-    <AppointmentCard
-      key={appointment.id}
-      time={appointment.appointment_time.substring(0, 5)}
-      client={appointment.client_name}
-      service={appointment.service}
-      price={Number(appointment.price ?? 0)}
-    />
-  ))}
-</div>
-
-
-
-
-
-
-
- {/*      <form onSubmit={handleSubmit}>
-
-        <label>Cliente</label>
-        <input
-          type="text"
-          placeholder="Buscar o agregar cliente"
-          value={clientSearch}
-          onChange={(e) => {
-            setClientSearch(e.target.value)
-            setShowClientResults(true)
-          }}
+        <AgendaSummary
+          barberName={selectedBarber}
+          appointments={activeAppointments.length}
+          estimatedIncome={estimatedIncome}
+          completedIncome={completedIncome}
         />
 
-        {clientSearch.trim() !== '' && (
-          <div className="client-results">
-            {showClientResults && clientSearch.trim() !== '' && (
-              <div className="client-results">
-              {clients
-                .filter((client) =>
-                  client.toLowerCase().includes(clientSearch.toLowerCase())
-                )
-                .map((client) => (
+        <div className="agenda-date-navigation">
+          <button
+            type="button"
+            onClick={() => changeDate(-1)}
+          >
+            ‹
+          </button>
+
+          <div className="agenda-date-picker">
+            <button
+              type="button"
+              onClick={() => {
+                dateInputRef.current?.showPicker()
+              }}
+            >
+              {formatSelectedDate(selectedDate)}
+            </button>
+
+            <input
+              ref={dateInputRef}
+              type="date"
+              value={selectedDate}
+              onChange={(e) => {
+                if (e.target.value) {
+                  setSelectedDate(e.target.value)
+                }
+              }}
+            />
+          </div>
+
+          <button
+            type="button"
+            onClick={() => changeDate(1)}
+          >
+            ›
+          </button>
+        </div>
+
+
+        <div className="agenda-toolbar">
+          <div className="agenda-barber-selector">
+            {role === 'partner' && (
+              <select
+                value={selectedBarber}
+                onChange={(e) => setSelectedBarber(e.target.value)}
+              >
+                <option value="">Selecciona un barbero</option>
+
+                {barbers.map((barber) => (
+                  <option
+                    key={barber.id}
+                    value={barber.name}
+                  >
+                    {barber.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <button
+            type="button"
+            className="new-appointment-button"
+            onClick={() => onNewAppointment(selectedDate)}
+          >
+            + Nueva cita
+          </button>
+        </div>
+
+
+
+        {!selectedAppointment && (
+          <div className="agenda-list">
+            {appointments.length === 0 && (
+              <div className="agenda-empty">
+                <p>No hay citas para este día.</p>
+                <span>
+                  Puedes registrar una nueva cita desde el botón de arriba.
+                </span>
+              </div>
+            )}
+            {appointments.map((appointment) => (
+              <AppointmentCard
+                key={appointment.id}
+                id={appointment.id}
+                time={appointment.appointment_time.substring(0, 5)}
+                client={appointment.client_name}
+                service={appointment.service}
+                price={Number(appointment.price ?? 0)}
+                status={appointment.status}
+                onClick={(id) => {
+                  setSelectedAppointmentId(id)
+                }}
+              />
+            ))}
+
+          </div>)}
+
+
+        {selectedAppointment && (
+          <div className="appointment-detail">
+            <button
+              type="button"
+              className="detail-back-button"
+              onClick={() => setSelectedAppointmentId(null)}
+            >
+              ← Volver
+            </button>
+
+            <h2>{selectedAppointment.client_name}</h2>
+
+            <p>
+              <strong>Servicio:</strong>{' '}
+              {selectedAppointment.service}
+            </p>
+
+            <p>
+              <strong>Hora:</strong>{' '}
+              {formatTime(
+                selectedAppointment.appointment_time.substring(0, 5)
+              )}
+            </p>
+
+            <p>
+              <strong>Precio:</strong>{' '}
+              ${Number(selectedAppointment.price ?? 0)}
+            </p>
+
+            {selectedAppointment.whatsapp && (
+              <p>
+                <strong>WhatsApp:</strong>{' '}
+                {selectedAppointment.whatsapp}
+              </p>
+            )}
+
+            <div className="appointment-actions">
+              {selectedAppointment.whatsapp && (
+                <button
+                  type="button"
+                  className="whatsapp-button"
+                  onClick={() =>
+                    openWhatsapp(selectedAppointment.whatsapp)
+                  }
+                >
+                  Abrir WhatsApp
+                </button>
+              )}
+
+              {selectedAppointment.status === 'confirmed' && (
+                <>
                   <button
-                    key={client}
                     type="button"
-                    className="client-item"
+                    className="edit-appointment-button"
                     onClick={() => {
-                      setClientSearch(client)
-                      setShowClientResults(false)
+                      onEditAppointment(selectedAppointment.id)
                     }}
                   >
-                    {client}
+                    Editar cita
                   </button>
-                  ))}
+
+                  <button
+                    type="button"
+                    className="complete-appointment-button"
+                    onClick={handleCompleteAppointment}
+                  >
+                    Finalizar cita
+                  </button>
+
+                  <button
+                    type="button"
+                    className="cancel-appointment-button"
+                    onClick={handleCancelAppointment}
+                  >
+                    Cancelar cita
+                  </button>
+                </>
+              )}
             </div>
-          )}
           </div>
         )}
-        
-        <h2>Selecciona un servicio</h2>
-        
-        <div className="option-list">
-          <OptionCard
-            title="Corte"
-            subtitle="$200 · 30 minutos"
-            selected={selectedService === 'corte'}
-            onClick={() => setSelectedService('corte')}
-          />
-
-          <OptionCard
-            title="Barba"
-            subtitle="$150 · 15 minutos"
-            selected={selectedService === 'barba'}
-            onClick={() => setSelectedService('barba')}
-          />
-
-          <OptionCard
-            title="Corte + Barba"
-            subtitle="$250 · 45 minutos"
-            selected={selectedService === 'corte-barba'}
-            onClick={() => setSelectedService('corte-barba')}
-          />
-        </div>
-
-        <h2>Selecciona un barbero</h2>
-
-        <div className="option-list">
-            <OptionCard
-                title="Primero disponible"
-                subtitle="Primera disponibilidad"
-                selected={selectedBarber === 'any'}
-                onClick={() => setSelectedBarber('any')}
-            />
-
-            <OptionCard
-                title="Iván"
-                subtitle="Barbero"
-                selected={selectedBarber === 'Ivan'}
-                onClick={() => setSelectedBarber('Ivan')}
-            />
-
-            <OptionCard
-                title="Barber2"
-                subtitle="Barbero"
-                selected={selectedBarber === 'Barber2'}
-                onClick={() => setSelectedBarber('Barber2')}
-            />
-        </div>
-
-        <h2>Selecciona una fecha</h2>
-
-      <div className="date-options">
-        <DateOption
-          title="Hoy"
-          subtitle="Jueves 6 de agosto"
-          selected={selectedDate === 'today'}
-          onClick={() => setSelectedDate('today')}
-        />
-
-        <DateOption
-          title="Mañana"
-          subtitle="Viernes 7 de agosto"
-          selected={selectedDate === 'tomorrow'}
-          onClick={() => setSelectedDate('tomorrow')}
-        />
-
-        <DateOption
-          title="Elegir otra fecha"
-          subtitle="Abrir calendario"
-          selected={selectedDate === 'other'}
-          onClick={() => setSelectedDate('other')}
-        />
-      </div>
-
-        <h2>Selecciona un horario</h2>
-
-        <div className="time-grid">
-
-            <TimeSlot
-                time="09:00"
-                selected={selectedTime==="09:00"}
-                onClick={()=>setSelectedTime("09:00")}
-            />
-
-            <TimeSlot
-             time="09:30"
-             available={false}
-            />
-
-            <TimeSlot
-                time="10:00"
-                selected={selectedTime==="10:00"}
-                onClick={()=>setSelectedTime("10:00")}
-            />
-
-            <TimeSlot
-                time="10:30"
-             selected={selectedTime==="10:30"}
-             onClick={()=>setSelectedTime("10:30")}
-            />
-
-            <TimeSlot
-                time="11:00"
-                selected={selectedTime==="11:00"}
-                onClick={()=>setSelectedTime("11:00")}
-            />
-
-            <TimeSlot
-                time="11:30"
-                available={false}
-            />
-
-        </div>
-
-        <button className="save-button" type="submit">
-            Guardar cita
-        </button>
-      </form> */}
 
 
-      
-
-    </main>
+      </main>
+    </PageContainer>
   )
 
 }
