@@ -815,3 +815,24 @@
   background: #faf9f7;
   color: var(--itc-black);
 }
+
+.booking-back-button {
+  margin: -14px 0 20px;
+  padding: 0;
+
+  background: transparent;
+  border: 0;
+
+  color: var(--itc-muted);
+
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+
+  cursor: pointer;
+}
+
+.booking-back-button:hover {
+  color: var(--itc-black);
+}

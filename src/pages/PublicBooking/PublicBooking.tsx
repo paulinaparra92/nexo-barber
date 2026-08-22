@@ -546,6 +546,45 @@ function PublicBooking() {
   }
 
 
+  function handleBack() {
+    if (step === 'service') {
+      setSelectedBarber('')
+      setSelectedService('')
+      setSelectedPrice(0)
+      setSelectedDate('')
+      setCustomDate('')
+      setSelectedTime('')
+      setStep('barber')
+      return
+    }
+
+    if (step === 'date') {
+      setSelectedService('')
+      setSelectedPrice(0)
+      setSelectedDate('')
+      setCustomDate('')
+      setSelectedTime('')
+      setStep('service')
+      return
+    }
+
+    if (step === 'time') {
+      setSelectedDate('')
+      setCustomDate('')
+      setSelectedTime('')
+      setDaySchedule(null)
+      setStep('date')
+      return
+    }
+
+    if (step === 'customer') {
+      setSelectedTime('')
+      setFormError('')
+      setStep('time')
+    }
+  }
+
+
 
 
   return (
@@ -580,6 +619,16 @@ function PublicBooking() {
         date={formattedSelectedDate}
         time={selectedTime}
       />
+
+      {step !== 'barber' && (
+        <button
+          type="button"
+          className="booking-back-button"
+          onClick={handleBack}
+        >
+          ← Regresar
+        </button>
+      )}
 
 
       {step === 'service' && (
