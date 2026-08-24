@@ -17,6 +17,15 @@ import { supabase } from '../../lib/supabase'
 import './PublicBooking.css'
 import itcMonogram from '../../assets/itc-monogram.png'
 
+
+function getLocalDateString(date: Date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+}
+
 function PublicBooking() {
   const [step, setStep] = useState<PublicBookingStep>('barber')
   const [selectedDate, setSelectedDate] = useState('')
@@ -88,14 +97,14 @@ function PublicBooking() {
     let formattedDate = ''
 
     if (selectedDate === 'Hoy') {
-      formattedDate = today.toISOString().split('T')[0]
+      formattedDate = getLocalDateString(today)
     }
 
     if (selectedDate === 'Mañana') {
       const tomorrow = new Date(today)
       tomorrow.setDate(today.getDate() + 1)
 
-      formattedDate = tomorrow.toISOString().split('T')[0]
+      formattedDate = getLocalDateString(tomorrow)
     }
 
     if (selectedDate === 'Elegir otra fecha') {
@@ -221,7 +230,7 @@ function PublicBooking() {
       const today = new Date()
 
       if (selectedDate === 'Hoy') {
-        appointmentDate = today.toISOString().split('T')[0]
+        appointmentDate = getLocalDateString(today)
       }
 
       if (selectedDate === 'Mañana') {
@@ -229,7 +238,7 @@ function PublicBooking() {
         tomorrow.setDate(today.getDate() + 1)
 
         appointmentDate =
-          tomorrow.toISOString().split('T')[0]
+          getLocalDateString(tomorrow)
       }
 
       if (selectedDate === 'Elegir otra fecha') {
@@ -293,14 +302,14 @@ function PublicBooking() {
       let appointmentDate = ''
 
       if (selectedDate === 'Hoy') {
-        appointmentDate = today.toISOString().split('T')[0]
+        appointmentDate = getLocalDateString(today)
       }
 
       if (selectedDate === 'Mañana') {
         const tomorrow = new Date(today)
         tomorrow.setDate(today.getDate() + 1)
 
-        appointmentDate = tomorrow.toISOString().split('T')[0]
+        appointmentDate = getLocalDateString(tomorrow)
       }
 
       if (selectedDate === 'Elegir otra fecha') {
@@ -331,14 +340,14 @@ function PublicBooking() {
     let dateValue = ''
 
     if (selectedDate === 'Hoy') {
-      dateValue = today.toISOString().split('T')[0]
+      dateValue = getLocalDateString(today)
     }
 
     if (selectedDate === 'Mañana') {
       const tomorrow = new Date(today)
       tomorrow.setDate(today.getDate() + 1)
 
-      dateValue = tomorrow.toISOString().split('T')[0]
+      dateValue = getLocalDateString(tomorrow)
     }
 
     if (selectedDate === 'Elegir otra fecha') {
@@ -617,7 +626,7 @@ function PublicBooking() {
         service={selectedService}
         barber={selectedBarber}
         date={formattedSelectedDate}
-        time={selectedTime}
+        time={selectedTime ? formatTimeLabel(selectedTime) : ''}
       />
 
       {step !== 'barber' && (
@@ -733,10 +742,13 @@ function PublicBooking() {
                   <button
                     type="button"
                     className="confirm-booking-button"
-                    onClick={handleConfirmBooking}
-                    disabled={savingBooking}
+                    onClick={() => {
+                      setSelectedTime('')
+                      setDaySchedule(null)
+                      setStep('time')
+                    }}
                   >
-                    {savingBooking ? 'Registrando...' : 'Confirmar cita'}
+                    Ver horarios disponibles
                   </button>
                 )}
               </>
@@ -821,7 +833,10 @@ function PublicBooking() {
             type="text"
             placeholder="Escribe tu nombre"
             value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
+            onChange={(e) => {
+              setCustomerName(e.target.value)
+              setFormError('')
+            }}
           />
 
           <label>
@@ -833,7 +848,11 @@ function PublicBooking() {
             placeholder="6251234567"
             maxLength={10}
             value={whatsapp}
-            onChange={(e) => setWhatsapp(e.target.value)}
+            inputMode="numeric"
+            onChange={(e) => {
+              setWhatsapp(e.target.value.replace(/\D/g, ''))
+              setFormError('')
+            }}
           />
 
           {formError && (
@@ -846,8 +865,9 @@ function PublicBooking() {
             type="button"
             className="confirm-booking-button"
             onClick={handleConfirmBooking}
+            disabled={savingBooking}
           >
-            Confirmar cita
+            {savingBooking ? 'Registrando...' : 'Confirmar cita'}
           </button>
         </>
       )}
