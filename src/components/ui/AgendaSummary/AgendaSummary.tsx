@@ -16,6 +16,17 @@ function AgendaSummary({
   return (
     <section className="agenda-summary">
       <h1>Agenda de {barberName}</h1>
+      <div
+        style={{
+          fontSize: '10px',
+          background: '#ffd',
+          padding: '4px',
+        }}
+      >
+        PROPS: {appointments} / {estimatedIncome} / {completedIncome}
+      </div>
+
+
 
       <div className="agenda-summary-info">
         <span>
