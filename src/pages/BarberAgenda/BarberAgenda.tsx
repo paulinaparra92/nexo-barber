@@ -127,11 +127,20 @@ function BarberAgenda({
 
     const message = `Hola ${appointment.client_name} 👋
 
-Te recordamos que tienes cita en In The Cut Barber Studio el ${formattedDate} a las ${formattedTime} con ${appointment.barber}.
+Te recordamos tu cita en *In The Cut Barber Studio* 💈
 
-Te pedimos llegar 10 minutos antes para poder atenderte puntualmente.
+📅 ${formattedDate}
+🕐 ${formattedTime}
+✂️ ${appointment.barber}
 
-¡Te esperamos! 💈`
+Te recomendamos llegar *10 minutos antes* para poder atenderte puntualmente.
+
+¡Te esperamos!
+
+Síguenos:
+📸 Instagram: https://www.instagram.com/inthecutbarbershop4
+🎵 TikTok: https://www.tiktok.com/@inthecutbarbershop4
+📘 Facebook: https://www.facebook.com/profile.php?id=61589639795615`
 
     const encodedMessage = encodeURIComponent(message)
 
