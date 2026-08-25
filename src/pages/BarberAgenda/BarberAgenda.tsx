@@ -30,13 +30,13 @@ function BarberAgenda({
     (appointment) => appointment.id === selectedAppointmentId
   )
   const [selectedDate, setSelectedDate] = useState(() => {
-  const today = new Date()
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
 
-  return `${year}-${month}-${day}`
-})
+    return `${year}-${month}-${day}`
+  })
   const dateInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -139,6 +139,8 @@ function BarberAgenda({
     0
   )
 
+
+
   function formatTime(time: string) {
     const [hours, minutes] = time.split(':').map(Number)
 
@@ -171,6 +173,22 @@ function BarberAgenda({
       month: 'long',
     }).format(new Date(`${date}T12:00:00`))
   }
+
+  const debugAgenda = {
+    totalAppointments: appointments.length,
+    activeAppointments: activeAppointments.length,
+    estimatedIncome,
+    prices: appointments.map((appointment) => ({
+      client: appointment.client_name,
+      price: appointment.price,
+      status: appointment.status,
+    })),
+  }
+
+
+
+
+
   return (
     <PageContainer>
       <main className="page">
@@ -183,6 +201,17 @@ function BarberAgenda({
           estimatedIncome={estimatedIncome}
           completedIncome={completedIncome}
         />
+
+        <pre
+          style={{
+            fontSize: '10px',
+            whiteSpace: 'pre-wrap',
+            background: '#eee',
+            padding: '8px',
+          }}
+        >
+          {JSON.stringify(debugAgenda, null, 2)}
+        </pre>
 
         <div className="agenda-date-navigation">
           <button
