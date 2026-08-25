@@ -105,16 +105,38 @@ function BarberAgenda({
     setSelectedAppointmentId(null)
   }
 
-  function openWhatsapp(whatsapp: string) {
-    const cleanNumber = whatsapp.replace(/\D/g, '')
+  function openWhatsapp(appointment: any) {
+    const cleanNumber = appointment.whatsapp.replace(/\D/g, '')
 
     const fullNumber =
       cleanNumber.length === 10
         ? `52${cleanNumber}`
         : cleanNumber
 
+    const formattedDate = new Intl.DateTimeFormat('es-MX', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+    }).format(
+      new Date(`${appointment.appointment_date}T12:00:00`)
+    )
+
+    const formattedTime = formatTime(
+      appointment.appointment_time.substring(0, 5)
+    )
+
+    const message = `Hola ${appointment.client_name} 👋
+
+Te recordamos que tienes cita en In The Cut Barber Studio el ${formattedDate} a las ${formattedTime} con ${appointment.barber}.
+
+Te pedimos llegar 10 minutos antes para poder atenderte puntualmente.
+
+¡Te esperamos! 💈`
+
+    const encodedMessage = encodeURIComponent(message)
+
     window.open(
-      `https://wa.me/${fullNumber}`,
+      `https://wa.me/${fullNumber}?text=${encodedMessage}`,
       '_blank'
     )
   }
@@ -174,7 +196,7 @@ function BarberAgenda({
     }).format(new Date(`${date}T12:00:00`))
   }
 
-  
+
 
 
 
@@ -193,7 +215,7 @@ function BarberAgenda({
           completedIncome={completedIncome}
         />
 
-      
+
 
         <div className="agenda-date-navigation">
           <button
@@ -335,7 +357,7 @@ function BarberAgenda({
                   type="button"
                   className="whatsapp-button"
                   onClick={() =>
-                    openWhatsapp(selectedAppointment.whatsapp)
+                    openWhatsapp(selectedAppointment)
                   }
                 >
                   Abrir WhatsApp
