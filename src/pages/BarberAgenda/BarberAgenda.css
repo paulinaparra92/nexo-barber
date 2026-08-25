@@ -324,3 +324,13 @@
   font-size: 0.9rem;
   line-height: 1.4;
 }
+
+.social-cta-text {
+  margin: 22px 0 8px;
+
+  color: var(--itc-muted);
+
+  font-size: 11px;
+  text-align: center;
+  letter-spacing: 0.04em;
+}

@@ -1,0 +1,196 @@
+.social-links-page {
+  --itc-black: #0b0c0c;
+  --itc-cream: #eee7dc;
+  --itc-muted: #8c8984;
+  --itc-border: #dedbd6;
+
+  min-height: 100vh;
+  padding: 0 18px 40px;
+
+  background: #ffffff;
+  color: var(--itc-black);
+}
+
+.social-links-container {
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.social-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  background: #050606;
+
+  padding: 20px 18px;
+  margin-bottom: 34px;
+
+  border-bottom: 1px solid #c9bda9;
+}
+
+.social-monogram {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.social-wordmark {
+  width: 180px;
+  max-width: 65%;
+  height: auto;
+  object-fit: contain;
+}
+
+.social-intro {
+  margin-bottom: 26px;
+}
+
+.social-eyebrow {
+  display: block;
+  margin-bottom: 10px;
+
+  color: var(--itc-muted);
+
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+}
+
+.social-intro h2 {
+  margin: 0;
+
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 32px;
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+.social-intro p {
+  margin: 12px 0 0;
+
+  color: var(--itc-muted);
+
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.social-list {
+  display: grid;
+  gap: 10px;
+}
+
+.social-card {
+  min-height: 66px;
+  padding: 12px 16px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  border: 1px solid var(--itc-border);
+  border-radius: 14px;
+
+  background: #ffffff;
+  color: var(--itc-black);
+
+  text-decoration: none;
+
+  transition:
+    border-color 0.18s ease,
+    background 0.18s ease,
+    transform 0.18s ease;
+}
+
+.social-card:hover {
+  border-color: var(--itc-black);
+  background: #faf9f7;
+  transform: translateY(-1px);
+}
+
+.social-card div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.social-card strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.social-card span {
+  color: var(--itc-muted);
+
+  font-size: 10px;
+  letter-spacing: 0.04em;
+}
+
+.social-arrow {
+  color: var(--itc-muted);
+
+  font-size: 18px;
+}
+
+.social-booking-button {
+  width: 100%;
+  min-height: 54px;
+  margin-top: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  background: #050606;
+  color: #eee7dc;
+
+  border: 1px solid #050606;
+  border-radius: 14px;
+
+  text-decoration: none;
+
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease;
+}
+
+.social-booking-button:hover {
+  background: #1a1a1a;
+  transform: translateY(-1px);
+}
+
+.social-booking-button:hover {
+  background: #1b1c1c;
+}
+
+.social-footer {
+  margin-top: 24px;
+
+  color: #aaa59e;
+
+  text-align: center;
+
+  font-size: 8px;
+  letter-spacing: 0.12em;
+}
+
+@media (max-width: 480px) {
+  .social-links-page {
+    padding: 24px 16px 36px;
+  }
+
+  .social-intro h2 {
+    font-size: 28px;
+  }
+}

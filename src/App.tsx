@@ -8,6 +8,7 @@ import BarberAgenda from './pages/BarberAgenda/BarberAgenda'
 import NewAppointment from './pages/NewAppointment/NewAppointment'
 import './App.css'
 import PublicBooking from './pages/PublicBooking/PublicBooking'
+import SocialLinks from './pages/SocialLinks/SocialLinks'
 
 type Profile = {
   role: 'partner' | 'barber'
@@ -71,6 +72,10 @@ function App() {
 
   const isInTheCutSubdomain =
     hostname === 'inthecut.nexobarber.app'
+
+  if (window.location.pathname === '/redes') {
+  return <SocialLinks />
+}
 
   if (
     window.location.pathname === '/reservar' ||
