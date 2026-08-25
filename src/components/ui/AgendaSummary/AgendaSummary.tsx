@@ -18,7 +18,9 @@ function AgendaSummary({
       <h1>Agenda de {barberName}</h1>
 
       <div className="agenda-summary-info">
-        <span>{appointments} citas hoy</span>
+        <span>
+          {appointments} {appointments === 1 ? 'cita' : 'citas'}
+        </span>
 
         <span className="agenda-summary-dot">·</span>
 

@@ -29,9 +29,14 @@ function BarberAgenda({
   const selectedAppointment = appointments.find(
     (appointment) => appointment.id === selectedAppointmentId
   )
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split('T')[0]
-  )
+  const [selectedDate, setSelectedDate] = useState(() => {
+  const today = new Date()
+  const year = today.getFullYear()
+  const month = String(today.getMonth() + 1).padStart(2, '0')
+  const day = String(today.getDate()).padStart(2, '0')
+
+  return `${year}-${month}-${day}`
+})
   const dateInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
