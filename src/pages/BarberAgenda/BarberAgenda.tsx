@@ -174,16 +174,7 @@ function BarberAgenda({
     }).format(new Date(`${date}T12:00:00`))
   }
 
-  const debugAgenda = {
-    totalAppointments: appointments.length,
-    activeAppointments: activeAppointments.length,
-    estimatedIncome,
-    prices: appointments.map((appointment) => ({
-      client: appointment.client_name,
-      price: appointment.price,
-      status: appointment.status,
-    })),
-  }
+  
 
 
 
@@ -202,16 +193,7 @@ function BarberAgenda({
           completedIncome={completedIncome}
         />
 
-        <pre
-          style={{
-            fontSize: '10px',
-            whiteSpace: 'pre-wrap',
-            background: '#eee',
-            padding: '8px',
-          }}
-        >
-          {JSON.stringify(debugAgenda, null, 2)}
-        </pre>
+      
 
         <div className="agenda-date-navigation">
           <button
