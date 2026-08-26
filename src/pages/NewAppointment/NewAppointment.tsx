@@ -18,6 +18,7 @@ import {
     getBarberServiceConfig,
     getBarberServiceConfigs,
 } from '../../services/barberServiceConfig'
+import { getScheduleForDate } from '../../services/scheduleService'
 
 
 type NewAppointmentProps = {
@@ -48,9 +49,17 @@ function NewAppointment({
     )
     const [clientName, setClientName] = useState('')
     const [service, setService] = useState('')
-    const [appointmentDate, setAppointmentDate] = useState(
-        initialDate ?? new Date().toISOString().split('T')[0]
-    )
+    const [appointmentDate, setAppointmentDate] = useState(() => {
+        if (initialDate) return initialDate
+
+        const today = new Date()
+
+        const year = today.getFullYear()
+        const month = String(today.getMonth() + 1).padStart(2, '0')
+        const day = String(today.getDate()).padStart(2, '0')
+
+        return `${year}-${month}-${day}`
+    })
     const [appointmentTime, setAppointmentTime] = useState('')
     const selectedService = services.find(
         (item) =>
@@ -76,6 +85,11 @@ function NewAppointment({
     const [whatsapp, setWhatsapp] = useState('')
 
     const [barberServiceConfigs, setBarberServiceConfigs] = useState<any[]>([])
+    const [daySchedule, setDaySchedule] = useState<{
+        is_open: boolean
+        open_time: string | null
+        close_time: string | null
+    } | null>(null)
 
 
     function timeToMinutes(time: string) {
@@ -206,6 +220,22 @@ function NewAppointment({
         loadBarberServiceConfigs()
     }, [selectedBarber, barbers])
 
+
+    useEffect(() => {
+        async function loadDaySchedule() {
+            if (!appointmentDate) {
+                setDaySchedule(null)
+                return
+            }
+
+            const schedule = await getScheduleForDate(appointmentDate)
+
+            setDaySchedule(schedule)
+        }
+
+        loadDaySchedule()
+    }, [appointmentDate])
+
     async function handleSaveAppointment() {
         if (
             !selectedBarber ||
@@ -236,7 +266,7 @@ function NewAppointment({
                         selectedBarber.trim().toLowerCase()
                 )
 
-        
+
 
 
 
@@ -470,22 +500,59 @@ function NewAppointment({
                             >
                                 <option value="">Selecciona una hora</option>
 
-                                {timeSlots.map((slot) => {
-                                    const time = slot.time.substring(0, 5)
-                                    const isBooked = bookedTimes.includes(time)
-                                    const hasConflict = hasTimeConflict(time)
-                                    const isUnavailable = isBooked || hasConflict
+                                {timeSlots
+                                    .filter((slot) => {
+                                        if (
+                                            !daySchedule?.is_open ||
+                                            !daySchedule.open_time ||
+                                            !daySchedule.close_time
+                                        ) {
+                                            return false
+                                        }
 
-                                    return (
-                                        <option
-                                            key={slot.id}
-                                            value={time}
-                                            disabled={isUnavailable}
-                                        >
-                                            {formatTime(time)} {isUnavailable ? '— Ocupado' : ''}
-                                        </option>
-                                    )
-                                })}
+                                        const time = slot.time.substring(0, 5)
+
+                                        const openTime =
+                                            daySchedule.open_time.substring(0, 5)
+
+                                        const lastAppointmentTime =
+                                            daySchedule.close_time.substring(0, 5)
+
+                                        const minutes = Number(
+                                            time.split(':')[1]
+                                        )
+
+                                        const isTwentyMinuteSlot =
+                                            minutes === 0 ||
+                                            minutes === 20 ||
+                                            minutes === 40
+
+                                        return (
+                                            isTwentyMinuteSlot &&
+                                            time >= openTime &&
+                                            time <= lastAppointmentTime
+                                        )
+                                    })
+                                    .map((slot) => {
+                                        const time = slot.time.substring(0, 5)
+
+                                        const isBooked = bookedTimes.includes(time)
+                                        const hasConflict = hasTimeConflict(time)
+
+                                        const isUnavailable =
+                                            isBooked || hasConflict
+
+                                        return (
+                                            <option
+                                                key={slot.id}
+                                                value={time}
+                                                disabled={isUnavailable}
+                                            >
+                                                {formatTime(time)}
+                                                {isUnavailable ? ' — Ocupado' : ''}
+                                            </option>
+                                        )
+                                    })}
                             </select>
                         </div>
                     </div>

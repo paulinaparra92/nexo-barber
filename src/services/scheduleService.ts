@@ -10,12 +10,23 @@ export async function getScheduleForDate(
       .eq('exception_date', date)
       .maybeSingle()
 
+  console.log('DEBUG exception:', {
+    date,
+    exception,
+    exceptionError,
+  })
+
   if (exceptionError) {
     console.error(
       'Error al cargar excepción de horario:',
       exceptionError
     )
-    return null
+
+    return {
+      is_open: false,
+      open_time: null,
+      close_time: null,
+    }
   }
 
   if (exception) {
@@ -29,15 +40,36 @@ export async function getScheduleForDate(
       .from('business_hours')
       .select('is_open, open_time, close_time')
       .eq('weekday', weekday)
-      .single()
+      .maybeSingle()
+
+  console.log('DEBUG businessHours:', {
+    date,
+    weekday,
+    businessHours,
+    hoursError,
+  })
 
   if (hoursError) {
     console.error(
       'Error al cargar horario del negocio:',
       hoursError
     )
-    return null
+
+    return {
+      is_open: false,
+      open_time: null,
+      close_time: null,
+    }
   }
+
+  if (!businessHours) {
+    return {
+      is_open: false,
+      open_time: null,
+      close_time: null,
+    }
+  }
+
 
   return businessHours
 }

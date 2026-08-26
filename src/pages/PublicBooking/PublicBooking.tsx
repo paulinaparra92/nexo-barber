@@ -811,11 +811,19 @@ function PublicBooking() {
 
                     const slotTime = slot.time.substring(0, 5)
                     const openTime = daySchedule.open_time.substring(0, 5)
-                    const closeTime = daySchedule.close_time.substring(0, 5)
+                    const lastAppointmentTime = daySchedule.close_time.substring(0, 5)
+
+                    const minutes = Number(slotTime.split(':')[1])
+
+                    const isTwentyMinuteSlot =
+                      minutes === 0 ||
+                      minutes === 20 ||
+                      minutes === 40
 
                     return (
+                      isTwentyMinuteSlot &&
                       slotTime >= openTime &&
-                      slotTime < closeTime
+                      slotTime <= lastAppointmentTime
                     )
                   })
                   .map((slot) => (
