@@ -9,7 +9,7 @@ type Appointment = {
   appointment_date: string
   appointment_time: string
   price: number
-  
+
 }
 
 export async function createAppointment(
@@ -82,10 +82,24 @@ export async function createPublicAppointment(
 
   if (error) {
     console.error('Error al crear cita pública:', error)
-    return false
+
+    if (error.code === '23505') {
+      return {
+        success: false,
+        reason: 'slot_taken',
+      }
+    }
+
+    return {
+      success: false,
+      reason: 'unknown',
+    }
   }
 
-  return true
+  return {
+    success: true,
+    reason: null,
+  }
 }
 
 export async function updateAppointment(

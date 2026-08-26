@@ -117,7 +117,7 @@ function PublicBooking() {
 
     setSavingBooking(true)
 
-    const success = await createPublicAppointment({
+    const result = await createPublicAppointment({
       client_name: customerName,
       whatsapp,
       service: selectedService,
@@ -127,15 +127,27 @@ function PublicBooking() {
       appointment_time: selectedTime,
       price: selectedPrice,
     })
+
     setSavingBooking(false)
 
-    if (!success) {
+    if (!result.success) {
+      if (result.reason === 'slot_taken') {
+        setFormError(
+          'Ese horario acaba de ser reservado. Elige otro horario disponible.'
+        )
+
+        setSelectedTime('')
+        setStep('time')
+        return
+      }
+
       setFormError(
         'No pudimos registrar tu cita. Intenta nuevamente.'
       )
       return
     }
-    if (success) {
+
+    if (result.success) {
       if (selectedBarberData.notification_email) {
         const { error } = await supabase.functions.invoke(
           'send-appointment-email',
