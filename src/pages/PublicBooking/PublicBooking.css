@@ -146,6 +146,7 @@
     font-size: 15px;
   }
 }
+
 /* ===========================
    OPTION CARDS
 =========================== */
@@ -259,6 +260,7 @@
   font-size: 17px;
   font-weight: 500;
 }
+
 /* ===========================
    BOOKING SUMMARY
 =========================== */
@@ -612,6 +614,25 @@
 .public-booking-page .date-option.selected::after {
   color: #c8c1b7;
 }
+
+.public-booking-page .date-option:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: #f7f7f7;
+  border-color: var(--itc-border);
+}
+
+.public-booking-page .date-option:disabled:hover {
+  background: #f7f7f7;
+  border-color: var(--itc-border);
+}
+
+.public-booking-page .date-option:disabled strong,
+.public-booking-page .date-option:disabled span,
+.public-booking-page .date-option:disabled::after {
+  color: #aaa39a;
+}
+
 /* ===========================
    CONFIRMATION — IN THE CUT
 =========================== */

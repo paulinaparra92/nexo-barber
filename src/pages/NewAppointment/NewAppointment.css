@@ -129,7 +129,10 @@
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
-
+.date-time-row .booking-form-error {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+}
 .date-time-row > div {
   width: 100%;
 }

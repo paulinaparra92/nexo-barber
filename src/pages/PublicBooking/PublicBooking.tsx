@@ -51,6 +51,8 @@ function PublicBooking() {
 
   const [formError, setFormError] = useState('')
   const [savingBooking, setSavingBooking] = useState(false)
+  const [todayAvailable, setTodayAvailable] = useState(true)
+  const [tomorrowAvailable, setTomorrowAvailable] = useState(true)
 
 
   async function handleConfirmBooking() {
@@ -284,9 +286,9 @@ function PublicBooking() {
     loadBookedTimes()
   }, [
     step,
-    selectedBarber,
     selectedDate,
     customDate,
+    selectedBarber,
     barbers,
   ])
 
@@ -332,7 +334,17 @@ function PublicBooking() {
         return
       }
 
-      const schedule = await getScheduleForDate(appointmentDate)
+
+      const selectedBarberData = barbers.find(
+        (item) =>
+          item.name.trim().toLowerCase() ===
+          selectedBarber.trim().toLowerCase()
+      )
+
+      const schedule = await getScheduleForDate(
+        appointmentDate,
+        selectedBarberData?.id
+      )
 
       setDaySchedule(schedule)
     }
@@ -342,7 +354,42 @@ function PublicBooking() {
     step,
     selectedDate,
     customDate,
+    selectedBarber,
+    barbers,
   ])
+
+  useEffect(() => {
+    async function loadQuickDateAvailability() {
+      const selectedBarberData = barbers.find(
+        (item) =>
+          item.name.trim().toLowerCase() ===
+          selectedBarber.trim().toLowerCase()
+      )
+
+      if (!selectedBarberData?.id) return
+
+      const today = new Date()
+      const tomorrow = new Date()
+      tomorrow.setDate(tomorrow.getDate() + 1)
+
+      const [todaySchedule, tomorrowSchedule] =
+        await Promise.all([
+          getScheduleForDate(
+            getLocalDateString(today),
+            selectedBarberData.id
+          ),
+          getScheduleForDate(
+            getLocalDateString(tomorrow),
+            selectedBarberData.id
+          ),
+        ])
+
+      setTodayAvailable(Boolean(todaySchedule?.is_open))
+      setTomorrowAvailable(Boolean(tomorrowSchedule?.is_open))
+    }
+
+    loadQuickDateAvailability()
+  }, [selectedBarber, barbers])
 
 
   const formattedSelectedDate = (() => {
@@ -604,7 +651,36 @@ function PublicBooking() {
       setStep('time')
     }
   }
+  async function handleDateSelection(
+    dateLabel: string,
+    appointmentDate: string
+  ) {
+    const selectedBarberData = barbers.find(
+      (item) =>
+        item.name.trim().toLowerCase() ===
+        selectedBarber.trim().toLowerCase()
+    )
 
+    if (!selectedBarberData?.id) return
+
+    const schedule = await getScheduleForDate(
+      appointmentDate,
+      selectedBarberData.id
+    )
+
+    if (!schedule?.is_open) {
+      setFormError(
+        'Este barbero no trabaja en esta fecha.'
+      )
+      return
+    }
+
+    setFormError('')
+    setSelectedDate(dateLabel)
+    setSelectedTime('')
+    setDaySchedule(schedule)
+    setStep('time')
+  }
 
 
 
@@ -713,19 +789,38 @@ function PublicBooking() {
           <div className="date-options">
             <DateOption
               title="Hoy"
-              subtitle={getTodayLabel()}
+              subtitle={
+                todayAvailable
+                  ? getTodayLabel()
+                  : 'No disponible'
+              }
+              disabled={!todayAvailable}
               onClick={() => {
-                setSelectedDate('Hoy')
-                setStep('time')
+                const today = new Date()
+
+                handleDateSelection(
+                  'Hoy',
+                  getLocalDateString(today)
+                )
               }}
             />
 
             <DateOption
               title="Mañana"
-              subtitle={getTomorrowLabel()}
+              subtitle={
+                tomorrowAvailable
+                  ? getTomorrowLabel()
+                  : 'No disponible'
+              }
+              disabled={!tomorrowAvailable}
               onClick={() => {
-                setSelectedDate('Mañana')
-                setStep('time')
+                const tomorrow = new Date()
+                tomorrow.setDate(tomorrow.getDate() + 1)
+
+                handleDateSelection(
+                  'Mañana',
+                  getLocalDateString(tomorrow)
+                )
               }}
             />
 
@@ -741,8 +836,10 @@ function PublicBooking() {
                 <input
                   type="date"
                   value={customDate}
+                  min={getLocalDateString(new Date())}
                   onChange={(e) => {
                     setCustomDate(e.target.value)
+                    setFormError('')
                   }}
                 />
                 {formError && (
@@ -755,9 +852,10 @@ function PublicBooking() {
                     type="button"
                     className="confirm-booking-button"
                     onClick={() => {
-                      setSelectedTime('')
-                      setDaySchedule(null)
-                      setStep('time')
+                      handleDateSelection(
+                        'Elegir otra fecha',
+                        customDate
+                      )
                     }}
                   >
                     Ver horarios disponibles

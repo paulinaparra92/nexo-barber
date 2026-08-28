@@ -228,13 +228,30 @@ function NewAppointment({
                 return
             }
 
-            const schedule = await getScheduleForDate(appointmentDate)
+            const selectedBarberData = barbers.find(
+                (item) =>
+                    item.name.trim().toLowerCase() ===
+                    selectedBarber.trim().toLowerCase()
+            )
+
+            const schedule =
+                await getScheduleForDate(
+                    appointmentDate,
+                    selectedBarberData?.id ??
+                    currentBarberId ??
+                    undefined
+                )
 
             setDaySchedule(schedule)
         }
 
         loadDaySchedule()
-    }, [appointmentDate])
+    }, [
+        appointmentDate,
+        selectedBarber,
+        barbers,
+        currentBarberId,
+    ])
 
     async function handleSaveAppointment() {
         if (
@@ -488,9 +505,18 @@ function NewAppointment({
                             <input
                                 type="date"
                                 value={appointmentDate}
+                                min={new Date().toLocaleDateString('en-CA')}
                                 onChange={(e) => setAppointmentDate(e.target.value)}
                             />
                         </div>
+
+                        {appointmentDate && daySchedule && !daySchedule.is_open && (
+                            <p className="booking-form-error">
+                                Este barbero no trabaja en esta fecha.
+                            </p>
+                        )}
+
+
                         <div>
                             <label>Hora</label>
 

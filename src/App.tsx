@@ -11,6 +11,7 @@ import PublicBooking from './pages/PublicBooking/PublicBooking'
 import SocialLinks from './pages/SocialLinks/SocialLinks'
 import MyAccount from './pages/MyAccount/MyAccount'
 import { supabase } from './lib/supabase'
+import BarberManagement from './pages/BarberManagement/BarberManagement'
 
 type Profile = {
   role: 'partner' | 'barber'
@@ -29,7 +30,10 @@ function App() {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState<
-    'agenda' | 'newAppointment' | 'myAccount'
+    'agenda' |
+    'newAppointment' |
+    'myAccount' |
+    'barberManagement'
   >('agenda')
   const [newAppointmentDate, setNewAppointmentDate] = useState<string | null>(null)
   const [editingAppointmentId, setEditingAppointmentId] =
@@ -170,6 +174,18 @@ function App() {
               Mi cuenta
             </button>
 
+            {profile.role === 'partner' && (
+              <button
+                type="button"
+                onClick={() => {
+                  setView('barberManagement')
+                  setAccountMenuOpen(false)
+                }}
+              >
+                Administrar barberos
+              </button>
+            )}
+
             <div className="user-menu-divider" />
 
             <button
@@ -222,6 +238,12 @@ function App() {
           barberId={profile.barber_id}
           onBack={() => setView('agenda')}
           onAvatarUpdated={(url) => setBarberAvatarUrl(url)}
+        />
+      )}
+
+      {view === 'barberManagement' && (
+        <BarberManagement
+          onBack={() => setView('agenda')}
         />
       )}
     </>

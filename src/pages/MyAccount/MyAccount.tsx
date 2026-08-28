@@ -1,7 +1,16 @@
 import { useEffect, useState } from 'react'
 import { supabase } from '../../lib/supabase'
 import './MyAccount.css'
+import { getBarberHours } from '../../services/barberHoursService'
 
+
+type BarberHour = {
+    id: string
+    weekday: number
+    is_open: boolean
+    open_time: string | null
+    last_appointment_time: string | null
+}
 
 type MyAccountProps = {
     onBack: () => void
@@ -23,6 +32,8 @@ function MyAccount({
     const [saving, setSaving] = useState(false)
     const [avatarUrl, setAvatarUrl] = useState('')
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
+    const [barberHours, setBarberHours] = useState<BarberHour[]>([])
+    const [loadingHours, setLoadingHours] = useState(false)
 
 
     useEffect(() => {
@@ -49,6 +60,21 @@ function MyAccount({
         }
 
         loadAvatar()
+    }, [barberId])
+
+    useEffect(() => {
+        async function loadBarberHours() {
+            if (!barberId) return
+
+            setLoadingHours(true)
+
+            const hours = await getBarberHours(barberId)
+
+            setBarberHours(hours)
+            setLoadingHours(false)
+        }
+
+        loadBarberHours()
     }, [barberId])
 
     async function handleChangePassword() {
@@ -237,6 +263,52 @@ function MyAccount({
             </section>
 
 
+            {barberId && (
+                <section className="my-account-card">
+                    <h2>Disponibilidad</h2>
+
+                    <p className="my-account-description">
+                        Consulta los días y horarios en los que recibes citas.
+                    </p>
+
+                    {loadingHours ? (
+                        <p>Cargando disponibilidad...</p>
+                    ) : (
+                        <div className="availability-list">
+                            {barberHours.map((day) => (
+                                <div
+                                    key={day.id}
+                                    className="availability-row"
+                                >
+                                    <strong>
+                                        {
+                                            [
+                                                'Domingo',
+                                                'Lunes',
+                                                'Martes',
+                                                'Miércoles',
+                                                'Jueves',
+                                                'Viernes',
+                                                'Sábado',
+                                            ][day.weekday]
+                                        }
+                                    </strong>
+
+                                    {day.is_open ? (
+                                        <span>
+                                            {day.open_time?.substring(0, 5)}
+                                            {' — '}
+                                            {day.last_appointment_time?.substring(0, 5)}
+                                        </span>
+                                    ) : (
+                                        <span>Cerrado</span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
 
 
             <section className="my-account-card">
