@@ -7,9 +7,11 @@ import {
 import {
     getBarberScheduleExceptions,
     createBarberScheduleException,
+    updateBarberScheduleException,
     deleteBarberScheduleException,
 } from '../../services/barberScheduleExceptionsService'
 import './BarberManagement.css'
+
 
 
 
@@ -86,6 +88,7 @@ function BarberManagement({
     const [exceptions, setExceptions] = useState<any[]>([])
     const [showExceptionForm, setShowExceptionForm] =
         useState(false)
+    const [editingExceptionId, setEditingExceptionId] = useState<string | null>(null)
     const [exceptionDate, setExceptionDate] = useState('')
     const [exceptionIsOpen, setExceptionIsOpen] = useState(false)
     const [exceptionOpenTime, setExceptionOpenTime] =
@@ -225,38 +228,82 @@ function BarberManagement({
         setError('')
         setMessage('')
 
-        const newException =
-            await createBarberScheduleException({
-                barber_id: selectedBarberId,
-                exception_date: exceptionDate,
-                is_open: exceptionIsOpen,
-                open_time: exceptionIsOpen
-                    ? exceptionOpenTime
-                    : null,
-                last_appointment_time: exceptionIsOpen
-                    ? exceptionLastAppointmentTime
-                    : null,
-            })
-
-        if (!newException) {
-            setError(
-                'No pudimos guardar la fecha especial.'
-            )
-            return
+        const exceptionData = {
+            exception_date: exceptionDate,
+            is_open: exceptionIsOpen,
+            open_time: exceptionIsOpen
+                ? exceptionOpenTime
+                : null,
+            last_appointment_time: exceptionIsOpen
+                ? exceptionLastAppointmentTime
+                : null,
         }
 
-        setExceptions((current) => [
-            ...current,
-            newException,
-        ])
+        if (editingExceptionId) {
+            const updatedException =
+                await updateBarberScheduleException(
+                    editingExceptionId,
+                    exceptionData
+                )
+
+            if (!updatedException) {
+                setError(
+                    'No pudimos actualizar la fecha especial.'
+                )
+                return
+            }
+
+            setExceptions((current) =>
+                current.map((exception) =>
+                    exception.id === editingExceptionId
+                        ? updatedException
+                        : exception
+                )
+            )
+
+            setMessage('Fecha especial actualizada.')
+        } else {
+            const newException =
+                await createBarberScheduleException({
+                    barber_id: selectedBarberId,
+                    ...exceptionData,
+                })
+
+            if (!newException) {
+                setError(
+                    'No pudimos guardar la fecha especial.'
+                )
+                return
+            }
+
+            setExceptions((current) => [
+                ...current,
+                newException,
+            ])
+
+            setMessage('Fecha especial guardada.')
+        }
 
         setShowExceptionForm(false)
+        setEditingExceptionId(null)
         setExceptionDate('')
         setExceptionIsOpen(false)
         setExceptionOpenTime('08:00')
         setExceptionLastAppointmentTime('18:00')
-
-        setMessage('Fecha especial guardada.')
+    }
+    function handleEditException(exception: any) {
+        setEditingExceptionId(exception.id)
+        setExceptionDate(exception.exception_date)
+        setExceptionIsOpen(exception.is_open)
+        setExceptionOpenTime(
+            exception.open_time?.substring(0, 5) || '08:00'
+        )
+        setExceptionLastAppointmentTime(
+            exception.last_appointment_time?.substring(0, 5) || '18:00'
+        )
+        setShowExceptionForm(true)
+        setMessage('')
+        setError('')
     }
     async function handleDeleteException(
         exceptionId: string
@@ -556,6 +603,7 @@ function BarberManagement({
                                 className="secondary-button"
                                 onClick={() => {
                                     setShowExceptionForm(false)
+                                    setEditingExceptionId(null)
                                     setExceptionDate('')
                                     setExceptionIsOpen(false)
                                     setExceptionOpenTime('08:00')
@@ -606,17 +654,23 @@ function BarberManagement({
                                     </div>
                                 </div>
 
-                                <button
-                                    type="button"
-                                    className="exception-delete-button"
-                                    onClick={() =>
-                                        handleDeleteException(
-                                            exception.id
-                                        )
-                                    }
-                                >
-                                    Eliminar
-                                </button>
+                                <div className="exception-actions">
+                                    <button
+                                        type="button"
+                                        className="exception-edit-button"
+                                        onClick={() => handleEditException(exception)}
+                                    >
+                                        Editar
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        className="exception-delete-button"
+                                        onClick={() => handleDeleteException(exception.id)}
+                                    >
+                                        Eliminar
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>

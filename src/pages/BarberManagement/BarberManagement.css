@@ -153,3 +153,17 @@
 .exception-delete-button:hover {
     background: #fef2f2;
 }
+.exception-edit-button {
+  padding: 7px 10px;
+  border: 1px solid #111827;
+  border-radius: var(--radius-sm);
+  background: white;
+  color: #111827;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.exception-edit-button:hover {
+  background: #f3f4f6;
+}

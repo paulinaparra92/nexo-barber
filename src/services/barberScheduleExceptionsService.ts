@@ -65,3 +65,30 @@ export async function deleteBarberScheduleException(
 
     return true
 }
+
+export async function updateBarberScheduleException(
+  exceptionId: string,
+  updates: {
+    exception_date: string
+    is_open: boolean
+    open_time: string | null
+    last_appointment_time: string | null
+  }
+) {
+  const { data, error } = await supabase
+    .from('barber_schedule_exceptions')
+    .update(updates)
+    .eq('id', exceptionId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error(
+      'Error al actualizar excepción del barbero:',
+      error
+    )
+    return null
+  }
+
+  return data
+}
