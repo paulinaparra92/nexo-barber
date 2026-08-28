@@ -857,3 +857,18 @@
 .booking-back-button:hover {
   color: var(--itc-black);
 }
+
+.public-booking-page .itc-barber-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.public-booking-page .itc-barber-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

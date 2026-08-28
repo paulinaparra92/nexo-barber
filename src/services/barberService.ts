@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 export async function getActiveBarbers() {
   const { data, error } = await supabase
     .from('barbers')
-    .select('id, name, role, notification_email')
+    .select('id, name, role, notification_email, avatar_url')
     .eq('active', true)
     .order('name')
 

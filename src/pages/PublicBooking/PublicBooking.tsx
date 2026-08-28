@@ -771,6 +771,7 @@ function PublicBooking() {
                 title={barber.name}
                 duration="Barbero"
                 variant="barber"
+                imageUrl={barber.avatar_url}
                 onClick={() => {
                   setSelectedBarber(barber.name)
                   setStep('service')

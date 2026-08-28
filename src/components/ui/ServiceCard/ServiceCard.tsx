@@ -3,6 +3,7 @@ type ServiceCardProps = {
   duration: string
   onClick?: () => void
   variant?: 'barber' | 'service'
+  imageUrl?: string | null
 }
 
 function ServiceCard({
@@ -10,6 +11,7 @@ function ServiceCard({
   duration,
   onClick,
   variant = 'service',
+  imageUrl,
 }: ServiceCardProps) {
   return (
     <button
@@ -19,7 +21,14 @@ function ServiceCard({
     >
       {variant === 'barber' && (
         <div className="itc-barber-avatar">
-          {title.charAt(0).toUpperCase()}
+          {imageUrl ? (
+            <img
+              src={imageUrl}
+              alt={title}
+            />
+          ) : (
+            title.charAt(0).toUpperCase()
+          )}
         </div>
       )}
 
