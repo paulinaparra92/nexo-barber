@@ -34,6 +34,13 @@ function MyAccount({
     const [uploadingAvatar, setUploadingAvatar] = useState(false)
     const [barberHours, setBarberHours] = useState<BarberHour[]>([])
     const [loadingHours, setLoadingHours] = useState(false)
+    const [connectingGoogle, setConnectingGoogle] = useState(false)
+    const [googleCalendarConnected, setGoogleCalendarConnected] =
+        useState(false)
+
+    const [loadingGoogleCalendar, setLoadingGoogleCalendar] =
+        useState(false)
+
 
 
     useEffect(() => {
@@ -44,7 +51,7 @@ function MyAccount({
                 .from('barbers')
                 .select('avatar_url')
                 .eq('id', barberId)
-                .single()
+                .maybeSingle()
 
             if (error) {
                 console.error(
@@ -63,7 +70,7 @@ function MyAccount({
     }, [barberId])
 
     useEffect(() => {
-        async function loadBarberHours() {
+        async function loadMyAccountData() {
             if (!barberId) return
 
             setLoadingHours(true)
@@ -72,10 +79,41 @@ function MyAccount({
 
             setBarberHours(hours)
             setLoadingHours(false)
+
+            await loadGoogleCalendarStatus()
         }
 
-        loadBarberHours()
+        loadMyAccountData()
     }, [barberId])
+
+
+    useEffect(() => {
+        const params = new URLSearchParams(
+            window.location.search
+        )
+
+        if (params.get('google_calendar') !== 'connected') {
+            return
+        }
+
+        setMessage(
+            'Google Calendar conectado correctamente.'
+        )
+
+        params.delete('google_calendar')
+
+        const cleanUrl =
+            window.location.pathname +
+            (params.toString()
+                ? `?${params.toString()}`
+                : '')
+
+        window.history.replaceState(
+            {},
+            '',
+            cleanUrl
+        )
+    }, [])
 
     async function handleChangePassword() {
         setMessage('')
@@ -215,6 +253,60 @@ function MyAccount({
     }
 
 
+    async function handleConnectGoogleCalendar() {
+        setError('')
+        setMessage('')
+        setConnectingGoogle(true)
+
+        const { data, error: functionError } =
+            await supabase.functions.invoke(
+                'google-calendar-connect'
+            )
+
+        if (functionError || !data?.authorizationUrl) {
+            console.error(
+                'Error al conectar Google Calendar:',
+                functionError
+            )
+
+            setConnectingGoogle(false)
+            setError(
+                'No pudimos iniciar la conexión con Google Calendar.'
+            )
+            return
+        }
+
+        window.location.href = data.authorizationUrl
+    }
+
+
+    async function loadGoogleCalendarStatus() {
+        if (!barberId) return
+
+        setLoadingGoogleCalendar(true)
+
+        const { data, error } =
+            await supabase.functions.invoke(
+                'google-calendar-status'
+            )
+
+        setLoadingGoogleCalendar(false)
+
+        if (error) {
+            console.error(
+                'Error al cargar estado de Google Calendar:',
+                error
+            )
+            return
+        }
+
+        setGoogleCalendarConnected(
+            data?.connected === true
+        )
+    }
+
+
+
     return (
         <main className="my-account-page">
 
@@ -268,47 +360,90 @@ function MyAccount({
                     <h2>Disponibilidad</h2>
 
                     <p className="my-account-description">
-                        Consulta los días y horarios en los que recibes citas.
+                        Este es tu horario semanal configurado en Nexo.
                     </p>
 
                     {loadingHours ? (
-                        <p>Cargando disponibilidad...</p>
+                        <p className="my-account-description">
+                            Cargando horarios...
+                        </p>
+                    ) : barberHours.length === 0 ? (
+                        <p className="my-account-description">
+                            No hay un horario semanal configurado.
+                        </p>
                     ) : (
                         <div className="availability-list">
                             {barberHours.map((day) => (
                                 <div
-                                    key={day.id}
+                                    key={day.weekday}
                                     className="availability-row"
                                 >
-                                    <strong>
-                                        {
-                                            [
-                                                'Domingo',
-                                                'Lunes',
-                                                'Martes',
-                                                'Miércoles',
-                                                'Jueves',
-                                                'Viernes',
-                                                'Sábado',
-                                            ][day.weekday]
-                                        }
-                                    </strong>
+                                    <span>
+                                        {[
+                                            'Domingo',
+                                            'Lunes',
+                                            'Martes',
+                                            'Miércoles',
+                                            'Jueves',
+                                            'Viernes',
+                                            'Sábado',
+                                        ][day.weekday]}
+                                    </span>
 
-                                    {day.is_open ? (
-                                        <span>
-                                            {day.open_time?.substring(0, 5)}
-                                            {' — '}
-                                            {day.last_appointment_time?.substring(0, 5)}
-                                        </span>
-                                    ) : (
-                                        <span>Cerrado</span>
-                                    )}
+                                    <strong>
+                                        {day.is_open
+                                            ? `${day.open_time} - ${day.last_appointment_time}`
+                                            : 'Descanso'}
+                                    </strong>
                                 </div>
                             ))}
                         </div>
                     )}
                 </section>
             )}
+
+            {barberId && (
+                <section className="my-account-card">
+                    <h2>Google Calendar</h2>
+
+                    {loadingGoogleCalendar ? (
+                        <p className="my-account-description">
+                            Verificando conexión...
+                        </p>
+                    ) : googleCalendarConnected ? (
+                        <>
+                            <p className="my-account-description">
+                                ✓ Google Calendar conectado
+                            </p>
+
+                            <p className="my-account-description">
+                                Tus nuevas citas de Nexo se agregarán
+                                automáticamente a tu calendario.
+                            </p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="my-account-description">
+                                Conecta tu calendario para recibir automáticamente
+                                tus citas de Nexo.
+                            </p>
+
+                            <button
+                                type="button"
+                                className="my-account-save"
+                                onClick={handleConnectGoogleCalendar}
+                                disabled={connectingGoogle}
+                            >
+                                {connectingGoogle
+                                    ? 'Conectando...'
+                                    : 'Conectar Google Calendar'}
+                            </button>
+                        </>
+                    )}
+                </section>
+            )}
+
+
 
 
             <section className="my-account-card">

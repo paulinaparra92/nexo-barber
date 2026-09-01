@@ -85,7 +85,7 @@ function App() {
         .from('barbers')
         .select('avatar_url')
         .eq('id', profile.barber_id)
-        .single()
+        .maybeSingle()
 
       if (error) {
         console.error('Error al cargar avatar del barbero:', error)
