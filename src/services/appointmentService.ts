@@ -15,22 +15,24 @@ type Appointment = {
 export async function createAppointment(
   appointment: Appointment
 ) {
-  const { data, error } = await supabase
+  const appointmentId = crypto.randomUUID()
+
+  const newAppointment = {
+    ...appointment,
+    id: appointmentId,
+    status: 'confirmed',
+  }
+
+  const { error } = await supabase
     .from('appointments')
-    .insert([
-      {
-        ...appointment,
-        status: 'confirmed',
-      },
-    ])
-    .select()
+    .insert([newAppointment])
 
   if (error) {
     console.error('Error al crear cita:', error)
     return null
   }
 
-  return data
+  return [newAppointment]
 }
 
 export async function updateAppointmentStatus(
