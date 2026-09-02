@@ -12,6 +12,9 @@ import SocialLinks from './pages/SocialLinks/SocialLinks'
 import MyAccount from './pages/MyAccount/MyAccount'
 import { supabase } from './lib/supabase'
 import BarberManagement from './pages/BarberManagement/BarberManagement'
+import Privacy from './pages/Privacy/Privacy'
+import Terms from './pages/Terms/Terms'
+import Home from './pages/Home/Home'
 
 type Profile = {
   role: 'partner' | 'barber'
@@ -111,6 +114,15 @@ function App() {
   if (window.location.pathname === '/redes') {
     return <SocialLinks />
   }
+  if (window.location.pathname === '/privacy') {
+    return <Privacy />
+  }
+  if (window.location.pathname === '/terms') {
+  return <Terms />
+}
+if (window.location.pathname === '/home') {
+  return <Home />
+}
 
   if (
     window.location.pathname === '/reservar' ||
