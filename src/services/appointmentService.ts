@@ -72,17 +72,18 @@ export async function getAppointmentById(id: string) {
 export async function createPublicAppointment(
   appointment: Appointment
 ) {
-  const { data, error } = await supabase
+  const appointmentId = crypto.randomUUID()
+
+  const newAppointment = {
+    ...appointment,
+    id: appointmentId,
+    status: 'confirmed',
+    booking_source: 'public',
+  }
+
+  const { error } = await supabase
     .from('appointments')
-    .insert([
-      {
-        ...appointment,
-        status: 'confirmed',
-        booking_source: 'public',
-      },
-    ])
-    .select()
-    .single()
+    .insert([newAppointment])
 
   if (error) {
     console.error('Error al crear cita pública:', error)
@@ -103,7 +104,7 @@ export async function createPublicAppointment(
   return {
     success: true,
     reason: null,
-    appointment: data,
+    appointment: newAppointment,
   }
 }
 
